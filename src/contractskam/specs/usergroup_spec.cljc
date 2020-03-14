@@ -1,6 +1,7 @@
 (ns contractskam.specs.usergroup-spec
   (:require [clojure.set :refer [rename-keys]]
-            [clojure.spec.alpha :as s]
+            #?(:clj  [clojure.spec.alpha :as s]
+               :cljs [cljs.spec.alpha :as s])
             [contractskam.specs.common-spec :as cspk]
             [com.rpl.specter :as S]))
 
@@ -17,12 +18,12 @@
 (s/def ::usergroup (s/keys :req [::GroupID ::UserID ::Name]))
 
 (s/def ::usergroup-like (s/or
-                         :c ::usergroup-cat
-                         :k ::usergroup-key
-                         :ug ::usergroup))
+                          :c ::usergroup-cat
+                          :k ::usergroup-key
+                          :ug ::usergroup))
 (s/def ::many-usergroups-type (s/or
-                               :nada empty?
-                               :lst (s/* ::usergroup-like)))
+                                :nada empty?
+                                :lst (s/* ::usergroup-like)))
 
 ;; Helpers
 

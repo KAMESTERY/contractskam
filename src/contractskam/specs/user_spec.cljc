@@ -1,6 +1,7 @@
 (ns contractskam.specs.user-spec
   (:require [clojure.set :refer [rename-keys]]
-            [clojure.spec.alpha :as s]
+            #?(:clj  [clojure.spec.alpha :as s]
+               :cljs [cljs.spec.alpha :as s])
             [contractskam.specs.common-spec :as cspk]
             [com.rpl.specter :as S]))
 
@@ -21,12 +22,12 @@
                             ::PasswordHash ::LastSeen]))
 
 (s/def ::user-like (s/or
-                    :c ::user-cat
-                    :k ::user-key
-                    :u ::user))
+                     :c ::user-cat
+                     :k ::user-key
+                     :u ::user))
 (s/def ::many-users-type (s/or
-                          :nada empty?
-                          :lst (s/* ::user-like)))
+                           :nada empty?
+                           :lst (s/* ::user-like)))
 
 ;; Helpers
 

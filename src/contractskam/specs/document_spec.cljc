@@ -2,7 +2,8 @@
   (:require [clojure.edn :as edn]
             [clojure.string :refer [capitalize join lower-case split]]
             [clojure.set :refer [rename-keys]]
-            [clojure.spec.alpha :as s]
+            #?(:clj  [clojure.spec.alpha :as s]
+               :cljs [cljs.spec.alpha :as s])
             [camel-snake-kebab.core :as csk]
             [contractskam.specs.common-spec :as cspk]
             [contractskam.specs.thing-spec :as tspk]
@@ -43,11 +44,11 @@
                                 ::Score ::CreatedAt ::UpdatedAt]))
 
 (s/def ::document-like (s/or
-                        :k ::document-key
-                        :d ::document))
+                         :k ::document-key
+                         :d ::document))
 (s/def ::many-document-type (s/or
-                             :nada empty?
-                             :lst (s/* ::document-like)))
+                              :nada empty?
+                              :lst (s/* ::document-like)))
 
 
 
@@ -70,20 +71,20 @@
   (String. (.decode (Base64/getDecoder) to-decode)))
 
 (defn document-keys-localize [m]
-  (rename-keys m {:Topic  ::Topic :DocumentID ::DocumentID
-                  :UserID ::UserID :Publish ::Publish
-                  :Slug   ::Slug :Langue ::Langue :Body ::Body
-                  :Title ::Title :Score ::Score :Version ::Version
-                  :Niveau ::Niveau :FiltreVisuel ::FiltreVisuel
+  (rename-keys m {:Topic      ::Topic :DocumentID ::DocumentID
+                  :UserID     ::UserID :Publish ::Publish
+                  :Slug       ::Slug :Langue ::Langue :Body ::Body
+                  :Title      ::Title :Score ::Score :Version ::Version
+                  :Niveau     ::Niveau :FiltreVisuel ::FiltreVisuel
                   :Identifier ::Identifier :Tags ::Tags     ;:Media ::Media
-                  :CreatedAt ::CreatedAt :UpdatedAt ::UpdatedAt}))
+                  :CreatedAt  ::CreatedAt :UpdatedAt ::UpdatedAt}))
 
 (defn doc-to-thing [m & {:keys [score version]
-                         :or {score 0
-                              version 0}}]
+                         :or   {score   0
+                                version 0}}]
   (-> m
       (select-keys [:Topic :DocumentID :UserID :Tags])
-      (rename-keys {:Topic :Name
+      (rename-keys {:Topic      :Name
                     :DocumentID :ThingID})
       (assoc :Score score
              :Version version
@@ -91,7 +92,7 @@
              :UpdatedAt (str (now)))))
 
 (defn doc-to-data [m]
-  {:pre [(s/valid? ::document (document-keys-localize m))]
+  {:pre  [(s/valid? ::document (document-keys-localize m))]
    :post [(s/valid? ::dspk/many-data-type (map dspk/data-keys-localize %))]}
   (let [thing-id (:DocumentID m)]
     (map (fn [[k v]]
@@ -111,7 +112,7 @@
       (rename-keys {:Name    :Topic
                     :ThingID :DocumentID})
       (merge
-       (into {} (map #(hash-map
-                       (-> % :Key csk/->PascalCase keyword)
-                       (-> % :Value)) data)))
+        (into {} (map #(hash-map
+                         (-> % :Key csk/->PascalCase keyword)
+                         (-> % :Value)) data)))
       (update-vals [:FiltreVisuel :Langue :Niveau :Publish] edn/read-string)))

@@ -1,6 +1,7 @@
 (ns contractskam.specs.data-spec
   (:require [clojure.set :refer [rename-keys]]
-            [clojure.spec.alpha :as s]
+            #?(:clj  [clojure.spec.alpha :as s]
+               :cljs [cljs.spec.alpha :as s])
             [contractskam.specs.common-spec :as cspk]
             [contractskam.specs.thing-spec :as tspk]
             [com.rpl.specter :as S]))
@@ -10,8 +11,8 @@
 (s/def ::DataID ::cspk/non-null-string-type)
 (s/def ::ThingID ::tspk/thing-id-type)
 (s/def ::Key (s/or
-              :k keyword?
-              :s string?))
+               :k keyword?
+               :s string?))
 ;(s/def ::Value ::cspk/has-some-value-type)
 (s/def ::Value ::cspk/non-null-string-type)
 
@@ -20,12 +21,12 @@
 (s/def ::data (s/keys :req [::ThingID ::DataID ::Key ::Value]))
 
 (s/def ::data-like (s/or
-                    :c ::data-cat
-                    :k ::data-key
-                    :d ::data))
+                     :c ::data-cat
+                     :k ::data-key
+                     :d ::data))
 (s/def ::many-data-type (s/or
-                         :nada empty?
-                         :lst (s/* ::data-like)))
+                          :nada empty?
+                          :lst (s/* ::data-like)))
 
 ;; Helpers
 

@@ -1,23 +1,18 @@
 {:paths ["config" "src" "resources"]
  :deps  {org.clojure/clojure            {:mvn/version "1.10.1"}
+         org.clojure/clojurescript {:mvn/version "1.10.597"}
          com.rpl/specter                {:mvn/version "1.1.3"}
          expound                        {:mvn/version "0.8.2"}
          com.bhauman/spell-spec         {:mvn/version "0.1.1"}
-         org.clojure/test.check         {:mvn/version "0.10.0"
+         org.clojure/test.check         {:mvn/version "1.0.0"
                                          :scope       "test"}}
  :aliases
         {:ancient {:main-opts  ["-m" "deps-ancient.deps-ancient"]
                    :extra-deps {deps-ancient {:mvn/version "0.0.4"}}}
          :cljfmt {:main-opts ["-m" "cljfmt.main" "fix"]     ;; -m cljfmt.main [check|fix]
                   :extra-deps {cljfmt {:mvn/version "0.6.4"}}}
-         :dev     {:main-opts  ["-m" "datakam.server"]
-                   ;;:jvm-opts ["-server" "-Xmx12G" "-Xmx8g" "-XX:+UseG1GC"]
-                   :jvm-opts   ["-server"
-                                ;;"-Dclojure.compiler.elide-meta=\"[:doc :file :line :added]\""
-                                "-Dclojure.compiler.direct-linking=true"]
-                   :extra-deps {io.pedestal/pedestal.service-tools {:mvn/version "0.5.7"}}}
          :test    {:extra-paths ["test"]
-                   :extra-deps  {org.clojure/test.check {:mvn/version "0.10.0"}}}
+                   :extra-deps  {org.clojure/test.check {:mvn/version "1.0.0"}}}
          :runner
                   {:extra-deps {com.cognitect/test-runner
                                 {:git/url "https://github.com/cognitect-labs/test-runner"

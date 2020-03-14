@@ -1,6 +1,7 @@
 (ns contractskam.specs.userprofile-spec
   (:require [clojure.set :refer [rename-keys]]
-            [clojure.spec.alpha :as s]
+            #?(:clj  [clojure.spec.alpha :as s]
+               :cljs [cljs.spec.alpha :as s])
             [contractskam.specs.common-spec :as cspk]
             [com.rpl.specter :as S]))
 
@@ -20,11 +21,11 @@
                                    ::MemberSince]))
 
 (s/def ::userprofile-like (s/or
-                           :k ::userprofile-key
-                           :up ::userprofile))
+                            :k ::userprofile-key
+                            :up ::userprofile))
 (s/def ::many-userprofiles-type (s/or
-                                 :nada empty?
-                                 :lst (s/* ::userprofile-like)))
+                                  :nada empty?
+                                  :lst (s/* ::userprofile-like)))
 
 ;; Helpers
 

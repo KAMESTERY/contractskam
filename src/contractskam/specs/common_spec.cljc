@@ -1,6 +1,9 @@
 (ns contractskam.specs.common-spec
-  (:require [clojure.spec.alpha :as s]
-            [clojure.spec.gen.alpha :as gen]))
+  (:require #?(:clj  [clojure.spec.alpha :as s]
+               :cljs [cljs.spec.alpha :as s])
+            #?(:cljs [clojure.test.check.generators])
+            #?(:clj  [clojure.spec.gen.alpha :as gen]
+               :cljs [cljs.spec.gen.alpha :as gen])))
 
 ;; Generators
 
@@ -12,12 +15,12 @@
 (def email-gen
   "Generator for email addresses"
   (gen/fmap
-   (fn [[name host tld]]
-     (str name "@" host "." tld))
-   (gen/tuple
-    non-empty-string-alphanumeric
-    non-empty-string-alphanumeric
-    non-empty-string-alphanumeric)))
+    (fn [[name host tld]]
+      (str name "@" host "." tld))
+    (gen/tuple
+      non-empty-string-alphanumeric
+      non-empty-string-alphanumeric
+      non-empty-string-alphanumeric)))
 
 ;;;; Specs Definition
 

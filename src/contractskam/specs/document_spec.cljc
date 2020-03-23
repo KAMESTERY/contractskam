@@ -9,8 +9,7 @@
             [contractskam.specs.thing-spec :as tspk]
             [contractskam.specs.data-spec :as dspk]
             [contractskam.specs.media-spec :as mspk]
-            [com.rpl.specter :as S])
-  (:import java.util.Base64))
+            [com.rpl.specter :as S]))
 
 ;; Document
 
@@ -63,12 +62,6 @@
 
 (defn update-vals [m val-keys f]
   (reduce #(update-in % [%2] f) m val-keys))
-
-(defn encode [to-encode]
-  (.encodeToString (Base64/getEncoder) (.getBytes to-encode)))
-
-(defn decode [to-decode]
-  (String. (.decode (Base64/getDecoder) to-decode)))
 
 (defn document-keys-localize [m]
   (rename-keys m {:Topic      ::Topic :DocumentID ::DocumentID

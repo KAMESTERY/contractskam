@@ -6,7 +6,7 @@
                :cljs [cljs.spec.alpha :as s])
             [camel-snake-kebab.core :as csk]
             [contractskam.specs.common-spec :as cspk]
-            [contractskam.specs.thing-spec :as tspk]
+            [contractskam.specs.content-spec :as ctspk]
             [contractskam.specs.data-spec :as dspk]
             [contractskam.specs.media-spec :as mspk]
             [com.rpl.specter :as S]))
@@ -15,23 +15,23 @@
 
 (s/def ::UserID ::cspk/email-type)
 (s/def ::Slug ::cspk/slug-type)
-(s/def ::Topic ::tspk/thing-name-type)
-(s/def ::DocumentID ::tspk/thing-id-type)
+(s/def ::Topic ::ctspk/Namespace)
+(s/def ::DocumentID ::ctspk/content-id-type)
 (s/def ::Publish boolean?)
 (s/def ::FiltreVisuel int?)
 (s/def ::Langue int?)
 (s/def ::Niveau int?)
-(s/def ::Version int?)
-(s/def ::Score int?)
+(s/def ::Version ::ctspk/Version)
+(s/def ::Score ::ctspk/Score)
 (s/def ::Title ::cspk/non-null-string-type)
 (s/def ::Identifier ::cspk/non-null-string-type)
 (s/def ::Body ::cspk/non-null-string-type)
 (s/def ::Media ::mspk/many-media-type)
 ;; (s/def ::Bag (s/map-of keyword? ::cspk/has-some-value-type))
-(s/def ::Extra (s/map-of keyword? ::cspk/has-some-value-type))
-(s/def ::Tags ::cspk/tags-type)
-(s/def ::CreatedAt ::cspk/non-null-string-type)
-(s/def ::UpdatedAt ::cspk/non-null-string-type)
+;; (s/def ::Extra (s/map-of keyword? ::cspk/has-some-value-type))
+(s/def ::Tags ::ctspk/Tags)
+(s/def ::CreatedAt ::ctspk/CreatedAt)
+(s/def ::UpdatedAt ::ctspk/UpdatedAt)
 
 (s/def ::document-key (s/keys :req [::Topic ::DocumentID]))
 (s/def ::document (s/keys :req [::Topic ::DocumentID
@@ -54,58 +54,12 @@
 ;; Helpers
 
 
-(defn now []
-  (java.time.LocalDateTime/now))
-
-(defn uuid []
-  (java.util.UUID/randomUUID))
-
-(defn update-vals [m val-keys f]
-  (reduce #(update-in % [%2] f) m val-keys))
-
 (defn document-keys-localize [m]
   (rename-keys m {:Topic      ::Topic :DocumentID ::DocumentID
                   :UserID     ::UserID :Publish ::Publish
                   :Slug       ::Slug :Langue ::Langue :Body ::Body
                   :Title      ::Title :Score ::Score :Version ::Version
                   :Niveau     ::Niveau :FiltreVisuel ::FiltreVisuel
-                  :Identifier ::Identifier :Tags ::Tags     ;:Media ::Media
+                  :Identifier ::Identifier :Tags ::Tags :Media ::Media
                   :CreatedAt  ::CreatedAt :UpdatedAt ::UpdatedAt}))
 
-(defn doc-to-thing [m & {:keys [score version]
-                         :or   {score   0
-                                version 0}}]
-  (-> m
-      (select-keys [:Topic :DocumentID :UserID :Tags])
-      (rename-keys {:Topic      :Name
-                    :DocumentID :ThingID})
-      (assoc :Score score
-             :Version version
-             :CreatedAt (str (now))
-             :UpdatedAt (str (now)))))
-
-(defn doc-to-data [m]
-  {:pre  [(s/valid? ::document (document-keys-localize m))]
-   :post [(s/valid? ::dspk/many-data-type (map dspk/data-keys-localize %))]}
-  (let [thing-id (:DocumentID m)]
-    (map (fn [[k v]]
-           (hash-map :DataID (str (uuid)) :ThingID thing-id :Key k :Value (if-not (string? v)
-                                                                            (pr-str v)
-                                                                            v)))
-         (-> m
-             (rename-keys {:DocumentID :ThingID})
-             (dissoc :Topic :ThingID :DocumentID :UserID :Tags)
-             seq))))
-
-(defn thing-data-to-document [thing data]
-  {:pre  [(s/valid? ::tspk/thing (tspk/thing-keys-localize thing))
-          (s/valid? ::dspk/many-data-type (map #(dspk/data-keys-localize %) data))]
-   :post [(s/valid? ::document (document-keys-localize %))]}
-  (-> thing
-      (rename-keys {:Name    :Topic
-                    :ThingID :DocumentID})
-      (merge
-        (into {} (map #(hash-map
-                         (-> % :Key csk/->PascalCase keyword)
-                         (-> % :Value)) data)))
-      (update-vals [:FiltreVisuel :Langue :Niveau :Publish] edn/read-string)))
